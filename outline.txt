@@ -1,0 +1,43 @@
+initialization function
+	- Arduino initialization (e.g. input/output pins)
+	- initialize SD card
+	- initialize I2C devices
+
+loop function
+	- scan over frequencies several times (i.e. ramp voltage up and down over different amounts of time)
+		- turn camera on
+		- ramp up and down
+		- turn camera off
+	- reattempt SD card initialization if failed
+
+read magnetometer
+	- read values
+	- write to SD card
+
+read accelerometer
+read gyroscope
+
+ramp up
+	- set voltage to minimum value
+	- increase voltage gradually over specified period of time
+	- read sensors periodically
+
+ramp down
+	- set voltage to maximum vlaue
+	- decrease voltage gradually over specified period of time
+
+turn camera on
+	- cut power to camera
+	- activate power to camera
+	- press camera button
+
+turn camera off
+	- press camera button
+	- cut power to camera
+
+write line to mission log
+	- write message to mission log, with timestamp
+
+wait
+	- delay specified amount of time
+	- update timestamp

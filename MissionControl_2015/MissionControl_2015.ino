@@ -170,50 +170,6 @@ void flash(int n) {
   }
 }
 
-void writeLineToSD(char* fileName, String dataString) {
-  File file = SD.open(fileName, FILE_WRITE);
-  if (file) {
-    file.println(dataString);
-    file.close();
-  }
-}
-
-void writeToLog(String dataString) {
-  dataString += " (";
-  dataString += timestamp;
-  dataString += ")";
-  writeLineToSD("mission.txt", dataString);
-}
-
-String readContentsOfFile(char* fileName) {
-  File file = SD.open(fileName);
-  String data = "";
-  if (file) {
-     while (file.available()) {
-       data += char(file.read());
-     }
-  }
-  return data;
-}
-
-void terminate() {
-  state = cycles + 1;
-  noLoop = true;
-  EEPROM.write(stateAddress, state);
-  output = "Experiment terminated.";
-  writeToLog(output);
-}
-
-// resets state and counter and clears mission log
-void totalReset() {
-  EEPROM.write(stateAddress, 0);
-  EEPROM.write(counterAddress, 0);
-  SD.remove("mission.txt");
-  File file = SD.open("mission.txt", FILE_WRITE);
-  if (file) { file.close(); }
-  writeLineToSD("reset.txt", " SUCCESSFUL");
-}
-
 // SD CARD FUNCTIONS *****************************************************************************************
 
 void writeLineToSD(char* fileName, String dataString) {

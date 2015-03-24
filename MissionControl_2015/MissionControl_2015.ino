@@ -15,6 +15,7 @@
 #define counterAddress 6
 #define flashTime 150
 #define waitTime 45 // time until Arduino activates cameras and Helmholtz coils -- must be less than 256 for coding reasons
+#define cycles 3
 #define RELAY_OPEN LOW
 #define RELAY_CLOSED HIGH
 int allRelays[] = {cameraPower, cameraButton, coilRelay}
@@ -23,6 +24,8 @@ int allRelays[] = {cameraPower, cameraButton, coilRelay}
 
 boolean SDactive = false;
 long timestamp = 0L;
+int state;
+String output;
 
 // FUNCTIONS *************************************************************************************************
 
@@ -83,7 +86,15 @@ void loop() {
   if (state > 0 && state <= cycles) {
     resetCamera();
     digitalWrite(coilRelay, RELAY_CLOSED);
-    
+    wait(1000);
+    rampUp(5);
+    wait(1000);
+    rampUp(10);
+    wait(1000);
+    rampUp(30);
+    state++;
+    EEPROM.write(stateAddress, state);
+    turnOffCamera();
   }
   
   if (state > cycles) { terminate(); }
@@ -146,8 +157,16 @@ void flash(int n) {
 }
 
 void rampUp(int duration) {
+  output = "Ramping up over ";
+  output += duration;
+  output += " seconds.";
+  writeToLog(output);
+  flash(1);
+  int frequency = 6
+  if (duration * frequency * 1000 / 255 < 250) { frequency = 250 * 255 / 1000 / duration; }
   for (int i=0; i<=255; i++) {
     analogWrite(PWMpin, i);
+    if (i % frequency == 0) { readMagnetometer(); }
     wait(duration * 1000 / 255);
   }
 }

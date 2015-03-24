@@ -10,7 +10,7 @@ void loop() {
 		delay(10);
 	}
 	delay(2000);
-	for (int i=255; i>=255; i--) {
+	for (int i=255; i>=0; i--) {
 		analogWrite(PWM, i);
 		delay(10);
 	}

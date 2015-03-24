@@ -4,7 +4,7 @@
 
 // SETTINGS **************************************************************************************************
 
-#define PWM 3
+#define PWMpin 3
 #define ledPin 9
 #define chipSelect 8
 #define cameraPower 0
@@ -82,33 +82,8 @@ void loop() {
   // main experiment
   if (state > 0 && state <= cycles) {
     resetCamera();
-    for (int i=0; i<=255; i++) {
-		analogWrite(PWM, i);
-		delay(10);
-	}
-	delay(2000);
-	for (int i=255; i>=255; i--) {
-		analogWrite(PWM, i);
-		delay(10);
-	}
-	delay(2000);
-
-      readMagnetometer();
-      
-      if (coilRelays[field] >= 0) {
-        digitalWrite(coilRelays[field], RELAY_OPEN);
-        output = "Relay on pin ";
-        output += coilRelays[field];
-        output += " opened.";
-      }
-      else { output = "No current to coils (end)."; }
-      writeToLog(output);
-      wait(1000);
-      readMagnetometer();
-    }
-    turnOffCamera();
-    state++;
-    EEPROM.write(stateAddress, state);
+    digitalWrite(coilRelay, RELAY_CLOSED);
+    
   }
   
   if (state > cycles) { terminate(); }
@@ -167,6 +142,13 @@ void flash(int n) {
     digitalWrite(ledPin, HIGH);
     wait(flashTime);
     digitalWrite(ledPin, LOW);
+  }
+}
+
+void rampUp(int duration) {
+  for (int i=0; i<=255; i++) {
+    analogWrite(PWMpin, i);
+    wait(duration * 1000 / 255);
   }
 }
 

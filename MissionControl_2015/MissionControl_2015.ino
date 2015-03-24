@@ -18,7 +18,7 @@
 #define cycles 3
 #define RELAY_OPEN LOW
 #define RELAY_CLOSED HIGH
-int allRelays[] = {cameraPower, cameraButton, coilRelay}
+int allRelays[] = {cameraPower, cameraButton, coilRelay};
 
 // OTHER VARIABLES *******************************************************************************************
 

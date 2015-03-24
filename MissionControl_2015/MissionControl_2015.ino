@@ -3,6 +3,7 @@
 #include <Wire.h>
 
 // SETTINGS **************************************************************************************************
+
 #define PWM 3
 #define ledPin 9
 #define chipSelect 8
@@ -80,6 +81,27 @@ void loop() {
   }
 
   
+}
+
+// SD CARD FUNCTIONS *****************************************************************************************
+
+void writeLineToSD(char* fileName, String dataString) {
+  if (!SDactive) {
+    SDactive = SD.begin(chipSelect);
+    if (!SDactive) { return; }
+  }
+  File file = SD.open(fileName, FILE_WRITE);
+  if (file) {
+    file.println(dataString);
+    file.close();
+  }
+}
+
+void writeToLog(String dataString) {
+  dataString += " (";
+  dataString += timestamp;
+  dataString += ")";
+  writeLineToSD("mission.txt", dataString);
 }
 
 String readContentsOfFile(char* fileName) {

@@ -3,6 +3,7 @@
 #include <Wire.h>
 
 // SETTINGS **************************************************************************************************
+
 #define PWM 3
 #define ledPin 9
 #define chipSelect 8
@@ -20,6 +21,7 @@ int allRelays[] = {cameraPower, cameraButton, coilRelay}
 
 // OTHER VARIABLES *******************************************************************************************
 
+boolean SDactive = false;
 long timestamp = 0L;
 
 // FUNCTIONS *************************************************************************************************
@@ -34,15 +36,12 @@ void setup() {
     digitalWrite(allRelays[i], RELAY_OPEN);
   }
 
-  // initiate SD card, reset card (and don't do anything else) if there is a file named "reset.txt" whose only content is "RESET"
-  if (!SD.begin(chipSelect)) {
-    noLoop = true;
-    return;
-  }
+  // attempt to initialize magnetometer
+  SDactive = SD.begin(chipSelect)
   
   // initialize magnetometer
   Wire.begin();
-  Wire.beginTransmission(address); // open communication with HMC5883
+  Wire.beginTransmission(0x1E); // open communication with HMC5883
   Wire.write(0x02); // select mode register
   Wire.write(0x00); // continuous measurement mode
   Wire.endTransmission();
@@ -213,6 +212,39 @@ void totalReset() {
   File file = SD.open("mission.txt", FILE_WRITE);
   if (file) { file.close(); }
   writeLineToSD("reset.txt", " SUCCESSFUL");
+}
+
+// SD CARD FUNCTIONS *****************************************************************************************
+
+void writeLineToSD(char* fileName, String dataString) {
+  if (!SDactive) {
+    SDactive = SD.begin(chipSelect);
+    if (!SDactive) { return; }
+  }
+  File file = SD.open(fileName, FILE_WRITE);
+  if (file) {
+    file.println(dataString);
+    file.close();
+  }
+}
+
+void writeToLog(String dataString) {
+  dataString += " (";
+  dataString += timestamp;
+  dataString += ")";
+  writeLineToSD("mission.txt", dataString);
+}
+
+String readContentsOfFile(char* fileName) {
+  String data = "";
+  if (!SDactive) { return data; }
+  File file = SD.open(fileName);
+  if (file) {
+     while (file.available()) {
+       data += char(file.read());
+     }
+  }
+  return data;
 }
 
 void wait(int n) {

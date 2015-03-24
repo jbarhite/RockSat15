@@ -25,6 +25,7 @@ int allRelays[] = {cameraPower, cameraButton, coilRelay};
 boolean SDactive = false;
 long timestamp = 0L;
 int state;
+int counter;
 String output;
 
 // FUNCTIONS *************************************************************************************************
@@ -40,7 +41,7 @@ void setup() {
   }
 
   // attempt to initialize magnetometer
-  SDactive = SD.begin(chipSelect)
+  SDactive = SD.begin(chipSelect);
   
   // initialize magnetometer
   Wire.begin();
@@ -102,10 +103,10 @@ void loop() {
 
 void readMagnetometer() {
   int x, y, z;
-  Wire.beginTransmission(address);
+  Wire.beginTransmission(0x1E);
   Wire.write(0x03);
   Wire.endTransmission();
-  Wire.requestFrom(address, 6);
+  Wire.requestFrom(0x1E, 6);
   if (Wire.available() >= 6) {
     x = Wire.read()<<8;
     x |= Wire.read();
@@ -114,15 +115,18 @@ void readMagnetometer() {
     y = Wire.read()<<8;
     y |= Wire.read();
   }
-  output = x;
+  
+  output = "Reading magnetometer.";
+  writeToLog(output);
+  output = String(timestamp);
+  output += ",";
+  output += x;
   output += ",";
   output += y;
   output += ",";
   output += z;
   output += ",";
   writeLineToSD("magdata.csv", output);
-  output = "Reading magnetometer.";
-  writeToLog(output);
 }
 
 void turnOffCamera() {
@@ -164,7 +168,7 @@ void rampUp(int duration) {
   output += " seconds.";
   writeToLog(output);
   flash(1);
-  int frequency = 6
+  int frequency = 6;
   if (duration * frequency * 1000 / 255 < 250) { frequency = 250 * 255 / 1000 / duration; }
   for (int i=0; i<=255; i++) {
     analogWrite(PWMpin, i);

@@ -140,6 +140,8 @@ void turnOffCamera() {
 }
 
 void resetCamera() {
+  output = "Resetting cameras.";
+  writeToLog(output);
   digitalWrite(cameraPower, RELAY_OPEN);
   digitalWrite(cameraButton, RELAY_OPEN);
   wait(1000);
@@ -163,18 +165,20 @@ void flash(int n) {
 }
 
 void rampUp(int duration) {
-  output = "Ramping up over ";
+  output = "Beginning ramp (";
   output += duration;
-  output += " seconds.";
+  output += " seconds).";
   writeToLog(output);
   flash(1);
   int frequency = 6;
-  if (duration * frequency * 1000 / 255 < 250) { frequency = 250 * 255 / 1000 / duration; }
+  if (duration * frequency * 4 < 250) { frequency = 60 / duration; }
   for (int i=0; i<=255; i++) {
     analogWrite(PWMpin, i);
     if (i % frequency == 0) { readMagnetometer(); }
     wait(duration * 1000 / 255);
   }
+  output = "Ramp completed.";
+  writeToLog(output);
 }
 
 // SD CARD FUNCTIONS *****************************************************************************************

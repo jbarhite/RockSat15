@@ -114,12 +114,14 @@ void readMagnetometer() {
     y = Wire.read()<<8;
     y |= Wire.read();
   }
-  output = "Magnetometer reading: x: ";
-  output += x;
-  output += ", y: ";
+  output = x;
+  output += ",";
   output += y;
-  output += ", z: ";
+  output += ",";
   output += z;
+  output += ",";
+  writeLineToSD("magdata.csv", output);
+  output = "Reading magnetometer.";
   writeToLog(output);
 }
 

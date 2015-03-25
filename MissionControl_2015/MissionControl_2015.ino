@@ -32,6 +32,7 @@ String output;
 
 void setup() {
   tempReset();
+  
   // configure pins
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
@@ -182,7 +183,13 @@ void rampUp(int duration) {
 }
 
 void tempReset() {
-  
+  pinMode(2, OUTPUT);
+  digitalWrite(2, LOW);
+  pinMode(7, INPUT_PULLUP);
+  if (digitalRead(7) == LOW) {
+      EEPROM.write(stateAddress, 0);
+      EEPROM.write(counterAddress, 0);
+  }
 }
 
 // SD CARD FUNCTIONS *****************************************************************************************

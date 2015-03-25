@@ -178,6 +178,7 @@ void rampUp(int duration) {
     if (i % frequency == 0) { readMagnetometer(); }
     wait(duration * 1000 / 255);
   }
+  analogWrite(PWMpin, 0);
   output = "Ramp completed.";
   writeToLog(output);
 }

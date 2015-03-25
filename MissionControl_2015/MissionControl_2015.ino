@@ -7,9 +7,9 @@
 #define PWMpin 3
 #define ledPin 9
 #define chipSelect 8
-#define cameraPower 0
-#define cameraButton 7
-#define coilRelay 4
+#define cameraPower 5
+#define cameraButton 4
+#define coilRelay 6
 
 #define stateAddress 5
 #define counterAddress 6
@@ -31,6 +31,7 @@ String output;
 // FUNCTIONS *************************************************************************************************
 
 void setup() {
+  tempReset();
   // configure pins
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
@@ -178,6 +179,10 @@ void rampUp(int duration) {
   }
   output = "Ramp completed.";
   writeToLog(output);
+}
+
+void tempReset() {
+  
 }
 
 // SD CARD FUNCTIONS *****************************************************************************************

@@ -67,8 +67,6 @@ void setup() {
 }
 
 void loop() {
-  if (noLoop) { return; }
-  
   // waiting to reach zero G
   if (state == 0) {
     wait(1000);
@@ -79,10 +77,11 @@ void loop() {
       EEPROM.write(stateAddress, 1);
       counter = 0;
       EEPROM.write(counterAddress, 0);
-      output = "SPAAAAAAAAAAAAAAAAAAACE.";
+      output = "SPACE!!!";
       writeToLog(output);
     }
   }
+  
   // main experiment
   if (state > 0 && state <= cycles) {
     resetCamera();
@@ -98,7 +97,7 @@ void loop() {
     turnOffCamera();
   }
   
-  if (state > cycles) { terminate(); }
+  //if (state > cycles) { terminate(); }
 }
 
 void readMagnetometer() {
@@ -126,7 +125,7 @@ void readMagnetometer() {
   output += ",";
   output += z;
   output += ",";
-  writeLineToSD("magdata.csv", output);
+  writeLineToSD("magdata.txt", output);
 }
 
 void turnOffCamera() {

@@ -16,8 +16,8 @@
 #define flashTime 150
 #define waitTime 45 // time until Arduino activates cameras and Helmholtz coils -- must be less than 256 for coding reasons
 #define cycles 3
-#define RELAY_OPEN LOW
-#define RELAY_CLOSED HIGH
+#define RELAY_OPEN HIGH
+#define RELAY_CLOSED LOW // relay board is active low
 int allRelays[] = {cameraPower, cameraButton, coilRelay};
 
 // OTHER VARIABLES *******************************************************************************************

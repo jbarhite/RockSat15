@@ -1,4 +1,4 @@
-#include <SD.h>
+  #include <SD.h>
 #include <EEPROM.h>
 #include <Wire.h>
 
@@ -14,7 +14,7 @@
 #define stateAddress 5
 #define counterAddress 6
 #define flashTime 150
-#define waitTime 45 // time until Arduino activates cameras and Helmholtz coils -- must be less than 256 for coding reasons
+#define waitTime 5 // time until Arduino activates cameras and Helmholtz coils -- must be less than 256 for coding reasons
 #define cycles 3
 #define RELAY_OPEN HIGH
 #define RELAY_CLOSED LOW // relay board is active low
@@ -134,7 +134,7 @@ void turnOffCamera() {
   digitalWrite(cameraButton, RELAY_CLOSED);
   wait(1000);
   digitalWrite(cameraButton, RELAY_OPEN);
-  wait(2000);
+  wait(5000);
   digitalWrite(cameraPower, RELAY_OPEN);
   output = "Cameras turned off.";
   writeToLog(output);
@@ -193,6 +193,11 @@ void tempReset() {
   }
 }
 
+void wait(int n) {
+  delay(n);
+  timestamp += n;
+}
+
 // SD CARD FUNCTIONS *****************************************************************************************
 
 void writeLineToSD(char* fileName, String dataString) {
@@ -224,9 +229,4 @@ String readContentsOfFile(char* fileName) {
      }
   }
   return data;
-}
-
-void wait(int n) {
-  delay(n);
-  timestamp += n;
 }

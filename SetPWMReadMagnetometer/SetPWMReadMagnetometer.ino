@@ -1,4 +1,8 @@
+#include <Wire.h>
 #define PWMpin 3
+#define address 0x1E
+
+String output;
 
 void setup() {
   Serial.begin(9600);

@@ -1,4 +1,4 @@
-  #include <SD.h>
+#include <SD.h>
 #include <EEPROM.h>
 #include <Wire.h>
 
@@ -19,6 +19,11 @@
 #define RELAY_OPEN HIGH
 #define RELAY_CLOSED LOW // relay board is active low
 int allRelays[] = {cameraPower, cameraButton, coilRelay};
+
+long data1[40]; // timestamp
+int data2[40]; // mag x
+int data3[40]; // mag y
+int data4[40]; // mag z
 
 // OTHER VARIABLES *******************************************************************************************
 
@@ -55,17 +60,6 @@ void setup() {
   // initiate variables and write initial state to the mission log
   state = EEPROM.read(stateAddress);
   counter = EEPROM.read(counterAddress);
-  output = "Arduino ";
-  if (counter > 0 || state > 0) { output += "re"; }
-  output += "started. Initial state: ";
-  output += state;
-  output += ".";
-  if (state == 0) {
-    output += " Initial counter value: ";
-    output += counter;
-    output += ".";
-  }
-  writeToLog(output);
 }
 
 void loop() {
@@ -79,8 +73,6 @@ void loop() {
       EEPROM.write(stateAddress, 1);
       counter = 0;
       EEPROM.write(counterAddress, 0);
-      output = "SPACE!!!";
-      writeToLog(output);
     }
   }
   
@@ -88,7 +80,7 @@ void loop() {
   if (state > 0 && state <= cycles) {
     resetCamera();
     digitalWrite(coilRelay, RELAY_CLOSED);
-    wait(1000);
+    wait(1000); // **************************************************************** NEED TO LOG FLASH NUMBER AND TIMESTAMP ***********************
     rampUp(5);
     wait(1000);
     rampUp(10);
@@ -102,7 +94,7 @@ void loop() {
   //if (state > cycles) { terminate(); }
 }
 
-void readMagnetometer() {
+void readMagnetometer(int i) {
   int x, y, z;
   Wire.beginTransmission(0x1E);
   Wire.write(0x03);
@@ -116,18 +108,11 @@ void readMagnetometer() {
     y = Wire.read()<<8;
     y |= Wire.read();
   }
-  
-  output = "Reading magnetometer.";
-  writeToLog(output);
-  output = String(timestamp);
-  output += ",";
-  output += x;
-  output += ",";
-  output += y;
-  output += ",";
-  output += z;
-  output += ",";
-  writeLineToSD("magdata.txt", output);
+
+  data1[i] = timestamp;
+  data2[i] = x;
+  data3[i] = y;
+  data4[i] = z;
 }
 
 void turnOffCamera() {
@@ -136,13 +121,9 @@ void turnOffCamera() {
   digitalWrite(cameraButton, RELAY_OPEN);
   wait(5000);
   digitalWrite(cameraPower, RELAY_OPEN);
-  output = "Cameras turned off.";
-  writeToLog(output);
 }
 
 void resetCamera() {
-  output = "Resetting cameras.";
-  writeToLog(output);
   digitalWrite(cameraPower, RELAY_OPEN);
   digitalWrite(cameraButton, RELAY_OPEN);
   wait(1000);
@@ -152,8 +133,6 @@ void resetCamera() {
   wait(1000);
   digitalWrite(cameraButton, RELAY_OPEN);
   wait(8000);
-  output = "Cameras recording.";
-  writeToLog(output);
 }
 
 void flash(int n) {
@@ -166,21 +145,16 @@ void flash(int n) {
 }
 
 void rampUp(int duration) {
-  output = "Beginning ramp (";
-  output += duration;
-  output += " seconds).";
-  writeToLog(output);
   flash(1);
-  int frequency = 6;
+  int frequency = 7;
   if (duration * frequency * 4 < 250) { frequency = 60 / duration; }
   for (int i=0; i<=255; i++) {
     analogWrite(PWMpin, i);
-    if (i % frequency == 0) { readMagnetometer(); }
+    if (i % frequency == 0) { readMagnetometer(i / frequency); }
     wait(duration * 1000 / 255);
   }
   analogWrite(PWMpin, 0);
-  output = "Ramp completed.";
-  writeToLog(output);
+  writeDataToLog(255 / frequency);
 }
 
 void tempReset() {
@@ -212,11 +186,21 @@ void writeLineToSD(char* fileName, String dataString) {
   }
 }
 
-void writeToLog(String dataString) {
-  dataString += " (";
-  dataString += timestamp;
-  dataString += ")";
-  writeLineToSD("mission.txt", dataString);
+void writeDataToLog(int n) {
+  if (!SDactive) { SDactive = SD.begin(chipSelect); }
+  if (SDactive) {
+    for (int i=0; i<n; i++) {
+      output = String(data1[i]);
+      output += ",";
+      output = String(data2[i]);
+      output += ",";
+      output = String(data3[i]);
+      output += ",";
+      output = String(data4[i]);
+      output += ",";
+      writeLineToSD("data.txt", output);
+    }
+  }
 }
 
 String readContentsOfFile(char* fileName) {

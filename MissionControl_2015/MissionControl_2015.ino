@@ -189,14 +189,14 @@ void writeLineToSD(char* fileName, String dataString) {
 void writeDataToLog(int n) {
   if (!SDactive) { SDactive = SD.begin(chipSelect); }
   if (SDactive) {
-    for (int i=0; i<n; i++) {
+    for (int i=0; i<=n; i++) {
       output = String(data1[i]);
       output += ",";
-      output = String(data2[i]);
+      output += String(data2[i]);
       output += ",";
-      output = String(data3[i]);
+      output += String(data3[i]);
       output += ",";
-      output = String(data4[i]);
+      output += String(data4[i]);
       output += ",";
       writeLineToSD("data.txt", output);
     }

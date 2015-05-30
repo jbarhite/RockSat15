@@ -46,9 +46,6 @@ void setup() {
     pinMode(allRelays[i], OUTPUT);
     digitalWrite(allRelays[i], RELAY_OPEN);
   }
-
-  // attempt to initialize magnetometer
-  SDactive = SD.begin(chipSelect);
   
   // initialize magnetometer
   Wire.begin();

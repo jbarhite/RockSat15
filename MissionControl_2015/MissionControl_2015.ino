@@ -29,7 +29,7 @@ int data6[40]; // thermistor
 
 // OTHER VARIABLES *******************************************************************************************
 
-boolean SDactive = false;
+boolean backupData = false;
 long timestamp = 0L;
 int state;
 int counter;
@@ -85,6 +85,7 @@ void loop() {
     rampUp(10);
     wait(1000);
     rampUp(30);
+    if (!backupData) { logBackupData(); }
     state++;
     EEPROM.write(stateAddress, state);
     turnOffCamera();
@@ -173,7 +174,21 @@ void wait(int n) {
   timestamp += n;
 }
 
-// SD CARD FUNCTIONS *****************************************************************************************
+// SD CARD AND EEPROM FUNCTIONS *****************************************************************************************
+
+void logBackupData() {
+  for (int i=0; i<40; i++) {
+    EEPROM.write(10 + i*8, (data2[i] + 4096) % 256);
+    EEPROM.write(11 + i*8, (data2[i] + 4096) / 256);
+    EEPROM.write(12 + i*8, (data4[i] + 4096) % 256);
+    EEPROM.write(13 + i*8, (data4[i] + 4096) / 256);
+    EEPROM.write(14 + i*8, data5[i] % 256);
+    EEPROM.write(15 + i*8, data5[i] / 256);
+    EEPROM.write(16 + i*8, data6[i] % 256);
+    EEPROM.write(17 + i*8, data6[i] / 256);
+  }
+  backupData = true;
+}
 
 void writeDataToLog(int n) {
   SD.begin(chipSelect);

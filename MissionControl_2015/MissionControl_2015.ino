@@ -24,6 +24,8 @@ long data1[40]; // timestamp
 int data2[40]; // mag x
 int data3[40]; // mag y
 int data4[40]; // mag z
+int data5[40]; // battery voltage
+int data6[40]; // thermistor
 
 // OTHER VARIABLES *******************************************************************************************
 
@@ -91,7 +93,7 @@ void loop() {
   //if (state > cycles) { terminate(); }
 }
 
-void readMagnetometer(int i) {
+void readSensors(int i) {
   int x, y, z;
   Wire.beginTransmission(0x1E);
   Wire.write(0x03);
@@ -110,6 +112,8 @@ void readMagnetometer(int i) {
   data2[i] = x;
   data3[i] = y;
   data4[i] = z;
+  data5[i] = analogRead(A0);
+  data6[i] = analogRead(A1);
 }
 
 void turnOffCamera() {
@@ -147,7 +151,7 @@ void rampUp(int duration) {
   if (duration * frequency * 4 < 250) { frequency = 60 / duration; }
   for (int i=0; i<=255; i++) {
     analogWrite(PWMpin, i);
-    if (i % frequency == 0) { readMagnetometer(i / frequency); }
+    if (i % frequency == 0) { readSensors(i / frequency); }
     wait(duration * 1000 / 255);
   }
   analogWrite(PWMpin, 0);

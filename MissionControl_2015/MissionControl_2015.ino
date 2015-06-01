@@ -188,6 +188,10 @@ void writeDataToLog(int n) {
       output += ",";
       output += String(data4[i]);
       output += ",";
+      output += String(data5[i]);
+      output += ",";
+      output += String(data6[i]);
+      output += ",";
       file.println(output);
       Serial.println(output);
     }

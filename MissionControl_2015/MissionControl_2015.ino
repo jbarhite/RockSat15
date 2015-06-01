@@ -171,21 +171,10 @@ void wait(int n) {
 
 // SD CARD FUNCTIONS *****************************************************************************************
 
-void writeLineToSD(char* fileName, String dataString) {
-  if (!SDactive) {
-    SDactive = SD.begin(chipSelect);
-    if (!SDactive) { return; }
-  }
-  File file = SD.open(fileName, FILE_WRITE);
-  if (file) {
-    file.println(dataString);
-    file.close();
-  }
-}
-
 void writeDataToLog(int n) {
-  if (!SDactive) { SDactive = SD.begin(chipSelect); }
-  if (SDactive) {
+  SD.begin(chipSelect);
+  File file = SD.open("data.txt", FILE_WRITE);
+  if (file) {
     for (int i=0; i<=n; i++) {
       output = String(data1[i]);
       output += ",";
@@ -195,8 +184,10 @@ void writeDataToLog(int n) {
       output += ",";
       output += String(data4[i]);
       output += ",";
-      writeLineToSD("data.txt", output);
+      file.println(output);
+      Serial.println(output);
     }
+    file.close();
   }
 }
 

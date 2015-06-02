@@ -114,7 +114,7 @@ void readSensors(int i) {
   data3[i] = y;
   data4[i] = z;
   data5[i] = analogRead(A0);
-  data6[i] = analogRead(A1);
+  data6[i] = analogRead(A2);
 }
 
 void turnOffCamera() {
@@ -190,38 +190,35 @@ void logBackupData() {
   backupData = true;
 }
 
-void writeDataToLog(int n) {
+void writeDataToLog(int n) {  
   SD.begin(chipSelect);
-  File file = SD.open("data.txt", FILE_WRITE);
-  if (file) {
+  File dataFile = SD.open("data.txt", FILE_WRITE);
+  if (dataFile) {
     for (int i=0; i<=n; i++) {
-      output = String(data1[i]);
-      output += ",";
-      output += String(data2[i]);
-      output += ",";
-      output += String(data3[i]);
-      output += ",";
-      output += String(data4[i]);
-      output += ",";
-      output += String(data5[i]);
-      output += ",";
-      output += String(data6[i]);
-      output += ",";
-      file.println(output);
-      Serial.println(output);
+      dataFile.print(data1[i]);
+      dataFile.print(",");
+      dataFile.print(data2[i]);
+      dataFile.print(",");
+      dataFile.print(data3[i]);
+      dataFile.print(",");
+      dataFile.print(data4[i]);
+      dataFile.print(",");
+      dataFile.print(data5[i]);
+      dataFile.print(",");
+      dataFile.print(data6[i]);
+      dataFile.println(",");
     }
-    file.close();
+    dataFile.close();
   }
 }
-
 String readContentsOfFile(char* fileName) {
   String data = "";
-  if (!SDactive) { return data; }
   File file = SD.open(fileName);
   if (file) {
      while (file.available()) {
        data += char(file.read());
      }
+     file.close();
   }
   return data;
 }

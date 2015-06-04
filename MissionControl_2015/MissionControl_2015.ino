@@ -20,13 +20,6 @@
 #define RELAY_CLOSED LOW // relay board is active low
 int allRelays[] = {cameraPower, cameraButton, coilRelay};
 
-long data1[40]; // timestamp
-int data2[40]; // mag x
-int data3[40]; // mag y
-int data4[40]; // mag z
-int data5[40]; // battery voltage
-int data6[40]; // thermistor
-
 // OTHER VARIABLES *******************************************************************************************
 
 boolean backupData = false;
@@ -34,6 +27,13 @@ long timestamp = 0L;
 int state;
 int counter;
 String output;
+
+long data1[40]; // timestamp
+int data2[40]; // mag x
+int data3[40]; // mag y
+int data4[40]; // mag z
+int data5[40]; // battery voltage
+int data6[40]; // thermistor
 
 // FUNCTIONS *************************************************************************************************
 
@@ -49,12 +49,13 @@ void setup() {
     digitalWrite(allRelays[i], RELAY_OPEN);
   }
   
-  // initialize magnetometer
+  // initialize magnetometer and accelerometer
   Wire.begin();
   Wire.beginTransmission(0x1E); // open communication with HMC5883
   Wire.write(0x02); // select mode register
   Wire.write(0x00); // continuous measurement mode
   Wire.endTransmission();
+  accel.init(SCALE_4G);
   
   // initiate variables and write initial state to the mission log
   state = EEPROM.read(stateAddress);
@@ -108,7 +109,7 @@ void readSensors(int i) {
     y = Wire.read()<<8;
     y |= Wire.read();
   }
-
+  
   data1[i] = timestamp;
   data2[i] = x;
   data3[i] = y;

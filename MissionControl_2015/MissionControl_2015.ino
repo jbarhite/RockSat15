@@ -14,7 +14,7 @@
 #define stateAddress 5
 #define counterAddress 6
 #define flashTime 150
-#define waitTime 5 // time until Arduino activates cameras and Helmholtz coils -- must be less than 256 for coding reasons
+#define waitTime 45 // time until Arduino activates cameras and Helmholtz coils -- must be less than 256 for coding reasons
 #define cycles 3
 #define RELAY_OPEN HIGH
 #define RELAY_CLOSED LOW // relay board is active low
@@ -38,7 +38,8 @@ int data6[40]; // thermistor
 // FUNCTIONS *************************************************************************************************
 
 void setup() {
-  tempReset();
+  pinMode(ledPin, OUTPUT);
+  reset();
   
   // configure pins
   pinMode(ledPin, OUTPUT);
@@ -55,7 +56,6 @@ void setup() {
   Wire.write(0x02); // select mode register
   Wire.write(0x00); // continuous measurement mode
   Wire.endTransmission();
-  accel.init(SCALE_4G);
   
   // initiate variables and write initial state to the mission log
   state = EEPROM.read(stateAddress);
@@ -92,14 +92,12 @@ void loop() {
     rampUp(10);
     wait(1000);
     rampUp(30);
-    if (!backupData) { logBackupData(); }
     state++;
     EEPROM.write(stateAddress, state);
+    if (!backupData) { logBackupData(); }
     digitalWrite(coilRelay, RELAY_OPEN);
     turnOffCamera();
   }
-  
-  //if (state > cycles) { terminate(); }
 }
 
 void readSensors(int i) {
@@ -160,7 +158,7 @@ void rampUp(int duration) {
   for (int i=0; i<=255; i++) {
     analogWrite(PWMpin, i);
     if (i % frequency == 0) { readSensors(i / frequency); }
-    if (i % (4 * frequency) == 0) { digitalWrite(ledPin, i % (8 * frequency)); }
+    if (i % (4 * frequency) == 0) { digitalWrite(ledPin, (i % (8 * frequency)) / (4 * frequency)); }
     wait(duration * 1000 / 255);
   }
   analogWrite(PWMpin, 0);
@@ -168,13 +166,20 @@ void rampUp(int duration) {
   writeDataToLog(255 / frequency);
 }
 
-void tempReset() {
+void reset() {
   pinMode(2, OUTPUT);
   digitalWrite(2, LOW);
   pinMode(7, INPUT_PULLUP);
-  if (digitalRead(7) == LOW) {
-      EEPROM.write(stateAddress, 0);
-      EEPROM.write(counterAddress, 0);
+  delay(10);
+  if (digitalRead(7) != LOW) { return; }
+  
+  EEPROM.write(stateAddress, 0);
+  EEPROM.write(counterAddress, 0);
+  for (int i=0; i<10; i++) {
+    digitalWrite(ledPin, HIGH);
+    delay(50);
+    digitalWrite(ledPin, LOW);
+    delay(50);
   }
 }
 

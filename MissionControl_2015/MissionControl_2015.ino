@@ -83,9 +83,9 @@ void loop() {
     digitalWrite(coilRelay, RELAY_CLOSED);
     wait(1000);
     if (state == 1) {
-      digitalWrite(PWMpin, 255);
+      analogWrite(PWMpin, 255);
       wait(5000);
-      digitalWrite(PWMpin, 0);
+      analogWrite(PWMpin, 0);
     }
     rampUp(5);
     wait(1000);

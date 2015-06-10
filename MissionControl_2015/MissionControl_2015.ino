@@ -181,6 +181,7 @@ void reset() {
     digitalWrite(ledPin, LOW);
     delay(50);
   }
+  delay(5000);
 }
 
 void wait(int n) {
